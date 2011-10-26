@@ -1,0 +1,9 @@
+Changes
+lib/Dancer/Session/CHI.pm
+Makefile.PL
+MANIFEST
+META.yml			Module meta-data (added by MakeMaker)
+README
+t/00-load.t
+t/manifest.t
+t/pod.t
