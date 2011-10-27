@@ -12,9 +12,46 @@ $VERSION = '0.01';
 
 # Package-wide cache
 my $cache;
+my %options;
 
 
 # static
+
+sub cache {
+    return $cache ||= _create_cache($options{params});
+}
+
+sub _call_via {
+    my $via = shift;
+    my $res;
+
+    unless ($via =~ /^\w+[\w:]+\w+$/) {
+        die "_call_via only accepts word-symbols and ::";
+    }
+
+    eval {
+        no strict 'refs';
+        $res = &$via();
+    };
+    die "Failed to call $via: $@" if $@;
+    return $res;
+}
+
+sub _create_cache {
+    if ($options{via}) {
+        $cache = _call_via($options{via})
+            || die "Failed to read cache via $options{via}";
+        #Dancer::debug(__PACKAGE__." sharing cache from {$options{via}}");
+    }
+    elsif ($options{driver}) {
+        $cache = CHI->new( driver => $options{driver}, %{$options{params}} )
+            or die "failed to create CHI cache";
+        #Dancer::debug(__PACKAGE__." created cache with driver $options{driver}");
+    }
+    else {
+        die "No via/driver option for the CHI session";
+    }
+}
 
 sub init {
     my ($class) = @_;
@@ -24,18 +61,23 @@ sub init {
     die "CHI is needed and is not installed"
       unless Dancer::ModuleLoader->load('CHI');
 
- 	# require a driver...
-	my $driver = setting('session_driver')
-		or die "session_driver must be set for CHI sessions";
+ 	# require either a driver or "via"
+    my $via    = setting('session_via');
+	my $driver = setting('session_driver');
 	my $params = setting('session_params') || {};
+
+    die "You must specify session_via or session_driver for CHI sessions"
+        unless ($driver || $params);
+
 	unless ($params->{namespace}) {
 		$params->{namespace} = __PACKAGE__;
 	}
 
-	$cache = CHI->new( driver => $driver, %$params )
-		or die "failed to create CHI cache";
-
-    Dancer::Logger->debug("CHI session_driver : $driver");
+    %options = (
+        via    => $via,
+        driver => $driver,
+        params => $params
+    );
 }
 
 # create a new session and return the newborn object
@@ -52,19 +94,19 @@ sub create {
 sub retrieve {
     my ($class, $id) = @_;
 
-	return $cache->get($id);
+	return cache->get($id);
 }
 
 # instance
 
 sub destroy {
     my ($self) = @_;
-	$cache->remove($self->id);
+	cache->remove($self->id);
 }
 
 sub flush {
     my $self = shift;
-	$cache->set($self->id, $self);
+	cache->set($self->id, $self);
     return $self;
 }
 
@@ -102,6 +144,16 @@ Or perhaps:
         root_dir: "/srv/testapp/cache/file"
         depth: 2
         expires_in: 3600
+
+or, to share via a cache() sub that returns a CHI object reference:
+    session: CHI
+    session_via: "Dancer::Plugin::Cache::CHI::cache"
+    session_params:
+        these: "get passed to cache()"
+
+One thing you might want to set in session_params is C<namespace> for the
+case when you have multiple apps sharing the same cache. Session IDs might
+collide in this case. See the L<CHI> documentation for details.
 
 =head1 DEPENDENCY
 
