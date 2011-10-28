@@ -25,13 +25,13 @@ sub _call_via {
     my $via = shift;
     my $res;
 
-    unless ($via =~ /^\w+[\w:]+\w+$/) {
-        die "_call_via only accepts word-symbols and ::";
+    unless ($via =~ qr{\A [A-Z_a-z] [0-9A-Z_a-z]* (?: :: [0-9A-Z_a-z]+)* \z}x) {
+        die "_call_via only accepts ASCII identifiers and ::";
     }
 
     eval {
         no strict 'refs';
-        $res = &$via();
+        $res = &$via($options{params});
     };
     die "Failed to call $via: $@" if $@;
     return $res;
@@ -146,6 +146,7 @@ Or perhaps:
         expires_in: 3600
 
 or, to share via a cache() sub that returns a CHI object reference:
+
     session: CHI
     session_via: "Dancer::Plugin::Cache::CHI::cache"
     session_params:
