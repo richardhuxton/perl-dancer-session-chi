@@ -5,5 +5,9 @@ MANIFEST
 META.yml			Module meta-data (added by MakeMaker)
 README
 t/00-load.t
+t/110_config_driver.t
+t/120_config_via.t
+t/121_config_via2.t
+t/122_config_via_bad.t
 t/manifest.t
 t/pod.t

@@ -9,6 +9,7 @@ use Dancer::Session::CHI;
 setting 'session'     => 'CHI';
 setting 'session_via' => 'Foo::Bar::cache';
 
+# A mock cache-providing package
 {
     package Foo::Bar;
 
