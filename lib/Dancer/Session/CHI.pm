@@ -7,7 +7,7 @@ use base 'Dancer::Session::Abstract';
 use Dancer::ModuleLoader;
 use Dancer::Config 'setting';
 
-use version 0.77; our $VERSION = qv('0.01');
+use version 0.77; our $VERSION = qv('0.1.0');
 
 # Package-wide cache
 my $cache;
@@ -122,6 +122,10 @@ __END__
 
 Dancer::Session::CHI - Sessions stored in a CHI-based cache
 
+=head1 VERSION
+
+0.1.0
+
 =head1 DESCRIPTION
 
 This module implements a session engine by using the L<CHI> framework.
@@ -181,7 +185,7 @@ for details on the CHI framework.
 
 =head1 COPYRIGHT
 
-This module is copyright (c) 2010-2011 David Precious <davidp@preshweb.co.uk>
+This module is copyright (c) 2011 Richard Huxton <richard.huxton@gmail.com>
 
 =head1 LICENSE
 

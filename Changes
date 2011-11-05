@@ -1,5 +1,9 @@
 Revision history for Dancer-Session-CHI
 
+0.1.0	2011-11-05
+		First release to CPAN.
+		Added session_via configuration option to share an existing cache.
+		Tidying, tests, documentation.
 0.01    2011-10-26
         First git commit as a separate library
 
